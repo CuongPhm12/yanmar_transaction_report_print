@@ -1,0 +1,156 @@
+SELECT 
+{from_date} from_date,
+{to_date} to_date,
+{agency_order_type_ser} agency_order_type_ser,
+{agency_ser} agency_ser,
+A.* FROM
+(SELECT
+ag.agency_name,
+b.agency_cd,
+a.release_no,
+a.release_qty,
+a.release_price,
+a.item_cd,
+--b.load_finish_date,
+DATE_FORMAT(b.load_finish_date,'%Y/%m/%d') as load_finish_date,
+od.agency_order_type,
+i.prod_type1,
+i.sales_cd,
+i.spec,
+ag.ceo_name,
+ag.biz_no,
+ag.address_info,
+i.item_name,
+se.engine_no,
+se.built_no,
+a.release_amount
+FROM tb_release_wanted_detail a
+JOIN tb_release_wanted b ON b.release_no = a.release_no
+JOIN vw_ma_agency ag ON b.agency_cd = ag.agency_cd
+JOIN tb_agency_order od on od.agency_order_no = a.agency_order_no
+JOIN vw_ma_item i on i.item_cd = a.item_cd
+JOIN tb_product_serial se on se.item_cd = a.item_cd and se.serial_id = a.serial_id
+WHERE b.load_finish_date is not null and b.load_finish_yn = 'Y'
+
+UNION ALL
+
+SELECT
+ag.agency_name,
+b.agency_cd,
+a.release_no,
+a.release_qty,
+a.release_price,
+a.item_cd,
+--b.load_finish_date,
+DATE_FORMAT(b.load_finish_date,'%Y/%m/%d') as load_finish_date,
+od.agency_order_type,
+i.prod_type1,
+i.sales_cd,
+i.spec,
+ag.ceo_name,
+ag.biz_no,
+ag.address_info,
+i.item_name,
+se.engine_no,
+se.built_no,
+a.release_amount
+FROM tb_release_cust_detail a
+JOIN tb_release_cust b ON b.release_no = a.release_no
+JOIN vw_ma_agency ag ON b.agency_cd = ag.agency_cd
+JOIN tb_agency_order od on od.agency_order_no = a.agency_order_no
+JOIN vw_ma_item i on i.item_cd = a.item_cd
+JOIN tb_product_serial se on se.item_cd = a.item_cd and se.serial_id = a.serial_id
+WHERE b.load_finish_date is not null and b.load_finish_yn = 'Y'
+
+UNION ALL
+
+SELECT
+ag.agency_name,
+b.end_agency_cd,
+a.release_no,
+a.release_qty,
+a.release_price,
+a.item_cd,
+--b.load_finish_date,
+DATE_FORMAT(b.load_finish_date,'%Y/%m/%d') as load_finish_date,
+od.agency_order_type,
+i.prod_type1,
+i.sales_cd,
+i.spec,
+ag.ceo_name,
+ag.biz_no,
+ag.address_info,
+i.item_name,
+se.engine_no,
+se.built_no,
+a.release_amount
+FROM tb_release_wh_detail a
+JOIN tb_release_wh b ON b.release_no = a.release_no
+JOIN vw_ma_agency ag ON b.end_agency_cd = ag.agency_cd
+JOIN tb_agency_order od on od.agency_order_no = a.agency_order_no
+JOIN vw_ma_item i on i.item_cd = a.item_cd
+JOIN tb_product_serial se on se.item_cd = a.item_cd and se.serial_id = a.serial_id
+WHERE b.load_finish_date is not null and b.load_finish_yn = 'Y'
+
+UNION ALL
+
+SELECT
+ag.agency_name,
+b.end_agency_cd,
+a.release_no,
+a.release_qty,
+a.release_price,
+a.item_cd,
+--b.load_finish_date,
+DATE_FORMAT(b.load_finish_date,'%Y/%m/%d') as load_finish_date,
+'판매전환' as agency_order_type,
+i.prod_type1,
+i.sales_cd,
+i.spec,
+ag.ceo_name,
+ag.biz_no,
+ag.address_info,
+i.item_name,
+se.engine_no,
+se.built_no,
+a.release_amount
+FROM tb_release_storage_detail a
+JOIN tb_release_storage b ON b.release_no = a.release_no
+JOIN vw_ma_agency ag ON b.end_agency_cd = ag.agency_cd
+JOIN vw_ma_item i on i.item_cd = a.item_cd
+JOIN tb_product_serial se on se.item_cd = a.item_cd and se.serial_id = a.serial_id
+WHERE b.load_finish_date is not null and b.load_finish_yn = 'Y' and b.release_status = 'STATUS99'
+
+UNION ALL
+
+SELECT
+ag.agency_name,
+b.agency_cd,
+a.release_no,
+a.release_qty,
+a.release_price,
+a.item_cd,
+--b.load_finish_date,
+DATE_FORMAT(b.load_finish_date,'%Y/%m/%d') as load_finish_date,
+'' as agency_order_type,
+i.prod_type1,
+i.sales_cd,
+i.spec,
+ag.ceo_name,
+ag.biz_no,
+ag.address_info,
+i.item_name,
+se.engine_no,
+se.built_no,
+a.release_amount
+FROM tb_release_move_wh_detail a
+JOIN tb_release_move_wh b ON b.release_no = a.release_no
+JOIN vw_ma_agency ag ON b.agency_cd = ag.agency_cd
+JOIN vw_ma_item i on i.item_cd = a.item_cd
+JOIN tb_product_serial se on se.item_cd = a.item_cd and se.serial_id = a.serial_id
+WHERE b.load_finish_date is not null and b.load_finish_yn = 'Y' ) A
+WHERE 1 = 1
+AND (IFNULL({from_date},'') = '' OR {from_date} <= DATE(A.load_finish_date))
+AND (IFNULL({to_date},'') = '' OR {to_date} >= DATE(A.load_finish_date))
+AND (IFNULL({agency_order_type_ser},'') = '' OR {agency_order_type_ser} = A.agency_order_type)
+AND (IFNULL({agency_ser},'') = '' OR {agency_ser} LIKE CONCAT('%',{agency_ser},'%'))

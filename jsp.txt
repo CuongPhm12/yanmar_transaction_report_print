@@ -1,0 +1,245 @@
+<%@page import="java.util.*"%>
+<%@page import="java.sql.*"%>
+<%@page import="java.net.*"%>
+<%@page import="java.io.*"%>
+<%@page import="java.text.SimpleDateFormat"%>
+<%@page import="java.util.Calendar"%>
+<%@page import="com.google.gson.Gson"%>
+<%@page import="java.sql.DriverManager"%>
+<%@page import="java.sql.SQLException"%>
+<%@page import="org.json.JSONArray"%>
+<%@page import="org.json.JSONObject"%>
+<%@page import="org.slf4j.Logger"%>
+<%@page import="org.slf4j.LoggerFactory"%>
+
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%@ include file="/WEB-INF/views/ajax/M000000001.jsp" %>
+<%@ include file="/WEB-INF/views/ajax/M000000241.jsp" %>
+<%
+    Logger logger = LoggerFactory.getLogger(getClass());
+
+    String header = (String)request.getParameter("header");
+    String detail = (String)request.getParameter("detail");
+    String sdetail = (String)request.getParameter("sdetail");
+    String type = (String)request.getParameter("type");
+
+    String driver = "org.mariadb.jdbc.Driver";
+    String url = "jdbc:mariadb://localhost:3306/simbizlocal?useUnicode=true&characterEncoding=UTF-8&characterSetResults=UTF-8";
+
+    String sLine = "";
+    String sText = "";
+    String user = "root";
+    String password = "tlaqlwm2174";
+
+    JSONObject jsonObj = new JSONObject();
+    String PassText = null;
+    String sql = "";
+    java.sql.Connection conn = null;
+    java.sql.PreparedStatement pstmt = null;
+    ResultSet rs = null;
+    Statement stmt = null;
+    
+    
+    String UID = (String)request.getParameter("UID");
+    
+    java.text.SimpleDateFormat dateFormat = new SimpleDateFormat ( "yyyy-MM-dd HH:mm:ss");
+    java.util.Date time = new java.util.Date();
+    String datetime = dateFormat.format(time);
+
+    try {
+        try {
+            Class.forName(driver);
+            conn = DriverManager.getConnection(url, user, password);
+            conn.setAutoCommit(false);
+
+            if ( type.equals("insert") || type.equals("edit") ) {
+
+            }
+
+            if ( type.equals("delete") ) {}
+            
+            if ( type.equals("cust_btn1") ) {
+
+            }
+            if ( type.equals("cust_btn2") ) {}
+            if ( type.equals("cust_btn3") ) {
+
+            }
+            
+        if ( type.equals("get_data") ) {        
+                Gson gson = new Gson();
+                if(header != null){
+                    JSONObject searchValue = new JSONObject(header);
+                    String releaseNo = searchValue.getString("releaseNo").toString();
+                            String dataSql = "";
+                            dataSql +="        SELECT ";
+                            dataSql +="A.* FROM ";
+                            dataSql +="(SELECT ";
+                            dataSql +="ag.agency_name, ";
+                            dataSql +="b.agency_cd, ";
+                            dataSql +="a.release_no, ";
+                            dataSql +="a.release_qty, ";
+                            dataSql +="a.release_price, ";
+                            dataSql +="a.item_cd, ";
+                            dataSql +="DATE_FORMAT(b.load_finish_date,'%Y/%m/%d') as load_finish_date, ";
+                            dataSql +="od.agency_order_type, ";
+                            dataSql +="i.prod_type1, ";
+                            dataSql +="i.sales_cd, ";
+                            dataSql +="i.spec, ";
+                            dataSql +="ag.ceo_name, ";
+                            dataSql +="ag.biz_no, ";
+                            dataSql +="ag.address_info, ";
+                            dataSql +="i.item_name, ";
+                            dataSql +="se.engine_no, ";
+                            dataSql +="se.built_no, ";
+                            dataSql +="a.release_amount ";
+                            dataSql +="FROM tb_release_wanted_detail a ";
+                            dataSql +="JOIN tb_release_wanted b ON b.release_no = a.release_no ";
+                            dataSql +="JOIN vw_ma_agency ag ON b.agency_cd = ag.agency_cd ";
+                            dataSql +="JOIN tb_agency_order od on od.agency_order_no = a.agency_order_no ";
+                            dataSql +="JOIN vw_ma_item i on i.item_cd = a.item_cd ";
+                            dataSql +="JOIN tb_product_serial se on se.item_cd = a.item_cd and se.serial_id = a.serial_id ";
+                            dataSql +="WHERE b.load_finish_date is not null and b.load_finish_yn = 'Y' ";
+                            dataSql +=" ";
+                            dataSql +="UNION ALL ";
+                            dataSql +=" ";
+                            dataSql +="SELECT ";
+                            dataSql +="ag.agency_name, ";
+                            dataSql +="b.agency_cd, ";
+                            dataSql +="a.release_no, ";
+                            dataSql +="a.release_qty, ";
+                            dataSql +="a.release_price, ";
+                            dataSql +="a.item_cd, ";
+                            dataSql +="DATE_FORMAT(b.load_finish_date,'%Y/%m/%d') as load_finish_date, ";
+                            dataSql +="od.agency_order_type, ";
+                            dataSql +="i.prod_type1, ";
+                            dataSql +="i.sales_cd, ";
+                            dataSql +="i.spec, ";
+                            dataSql +="ag.ceo_name, ";
+                            dataSql +="ag.biz_no, ";
+                            dataSql +="ag.address_info, ";
+                            dataSql +="i.item_name, ";
+                            dataSql +="se.engine_no, ";
+                            dataSql +="se.built_no, ";
+                            dataSql +="a.release_amount ";
+                            dataSql +="FROM tb_release_cust_detail a ";
+                            dataSql +="JOIN tb_release_cust b ON b.release_no = a.release_no ";
+                            dataSql +="JOIN vw_ma_agency ag ON b.agency_cd = ag.agency_cd ";
+                            dataSql +="JOIN tb_agency_order od on od.agency_order_no = a.agency_order_no ";
+                            dataSql +="JOIN vw_ma_item i on i.item_cd = a.item_cd ";
+                            dataSql +="JOIN tb_product_serial se on se.item_cd = a.item_cd and se.serial_id = a.serial_id ";
+                            dataSql +="WHERE b.load_finish_date is not null and b.load_finish_yn = 'Y' ";
+                            dataSql +=" ";
+                            dataSql +="UNION ALL ";
+                            dataSql +=" ";
+                            dataSql +="SELECT ";
+                            dataSql +="ag.agency_name, ";
+                            dataSql +="b.end_agency_cd, ";
+                            dataSql +="a.release_no, ";
+                            dataSql +="a.release_qty, ";
+                            dataSql +="a.release_price, ";
+                            dataSql +="a.item_cd, ";
+                            dataSql +="DATE_FORMAT(b.load_finish_date,'%Y/%m/%d') as load_finish_date, ";
+                            dataSql +="od.agency_order_type, ";
+                            dataSql +="i.prod_type1, ";
+                            dataSql +="i.sales_cd, ";
+                            dataSql +="i.spec, ";
+                            dataSql +="ag.ceo_name, ";
+                            dataSql +="ag.biz_no, ";
+                            dataSql +="ag.address_info, ";
+                            dataSql +="i.item_name, ";
+                            dataSql +="se.engine_no, ";
+                            dataSql +="se.built_no, ";
+                            dataSql +="a.release_amount ";
+                            dataSql +="FROM tb_release_wh_detail a ";
+                            dataSql +="JOIN tb_release_wh b ON b.release_no = a.release_no ";
+                            dataSql +="JOIN vw_ma_agency ag ON b.end_agency_cd = ag.agency_cd ";
+                            dataSql +="JOIN tb_agency_order od on od.agency_order_no = a.agency_order_no ";
+                            dataSql +="JOIN vw_ma_item i on i.item_cd = a.item_cd ";
+                            dataSql +="JOIN tb_product_serial se on se.item_cd = a.item_cd and se.serial_id = a.serial_id ";
+                            dataSql +="WHERE b.load_finish_date is not null and b.load_finish_yn = 'Y' ";
+                            dataSql +=" ";
+                            dataSql +="UNION ALL ";
+                            dataSql +=" ";
+                            dataSql +="SELECT ";
+                            dataSql +="ag.agency_name, ";
+                            dataSql +="b.end_agency_cd, ";
+                            dataSql +="a.release_no, ";
+                            dataSql +="a.release_qty, ";
+                            dataSql +="a.release_price, ";
+                            dataSql +="a.item_cd, ";
+                            dataSql +="DATE_FORMAT(b.load_finish_date,'%Y/%m/%d') as load_finish_date, ";
+                            dataSql +="'판매전환' as agency_order_type, ";
+                            dataSql +="i.prod_type1, ";
+                            dataSql +="i.sales_cd, ";
+                            dataSql +="i.spec, ";
+                            dataSql +="ag.ceo_name, ";
+                            dataSql +="ag.biz_no, ";
+                            dataSql +="ag.address_info, ";
+                            dataSql +="i.item_name, ";
+                            dataSql +="se.engine_no, ";
+                            dataSql +="se.built_no, ";
+                            dataSql +="a.release_amount ";
+                            dataSql +="FROM tb_release_storage_detail a ";
+                            dataSql +="JOIN tb_release_storage b ON b.release_no = a.release_no ";
+                            dataSql +="JOIN vw_ma_agency ag ON b.end_agency_cd = ag.agency_cd ";
+                            dataSql +="JOIN vw_ma_item i on i.item_cd = a.item_cd ";
+                            dataSql +="JOIN tb_product_serial se on se.item_cd = a.item_cd and se.serial_id = a.serial_id ";
+                            dataSql +="WHERE b.load_finish_date is not null and b.load_finish_yn = 'Y' and b.release_status = 'STATUS99' ";
+                            dataSql +=" ";
+                            dataSql +="UNION ALL ";
+                            dataSql +=" ";
+                            dataSql +="SELECT ";
+                            dataSql +="ag.agency_name, ";
+                            dataSql +="b.agency_cd, ";
+                            dataSql +="a.release_no, ";
+                            dataSql +="a.release_qty, ";
+                            dataSql +="a.release_price, ";
+                            dataSql +="a.item_cd, ";
+                            dataSql +="DATE_FORMAT(b.load_finish_date,'%Y/%m/%d') as load_finish_date, ";
+                            dataSql +="'' as agency_order_type, ";
+                            dataSql +="i.prod_type1, ";
+                            dataSql +="i.sales_cd, ";
+                            dataSql +="i.spec, ";
+                            dataSql +="ag.ceo_name, ";
+                            dataSql +="ag.biz_no, ";
+                            dataSql +="ag.address_info, ";
+                            dataSql +="i.item_name, ";
+                            dataSql +="se.engine_no, ";
+                            dataSql +="se.built_no, ";
+                            dataSql +="a.release_amount ";
+                            dataSql +="FROM tb_release_move_wh_detail a ";
+                            dataSql +="JOIN tb_release_move_wh b ON b.release_no = a.release_no ";
+                            dataSql +="JOIN vw_ma_agency ag ON b.agency_cd = ag.agency_cd ";
+                            dataSql +="JOIN vw_ma_item i on i.item_cd = a.item_cd ";
+                            dataSql +="JOIN tb_product_serial se on se.item_cd = a.item_cd and se.serial_id = a.serial_id ";
+                            dataSql +="WHERE b.load_finish_date is not null and b.load_finish_yn = 'Y') A ";
+                            dataSql +="WHERE 1 = 1 ";
+                            dataSql +="AND A.release_no = '"+releaseNo+"'";
+                
+                List<Map<String, Object>> data = selectAllQuery(conn,dataSql);
+                Map<String, Object> response_data = new HashMap<>();
+                response_data.put("res", data);
+              String jsonString = new Gson().toJson(response_data);
+              out.print(jsonString);
+        }
+    }
+             
+
+            
+        } catch (Throwable throwable) {
+            if (conn != null) {
+                conn.rollback();
+                logger.info("!!!!ROLLBACK DONE!!!!");
+            }
+            throw throwable;
+        } finally {
+            if (conn != null) conn.close();
+            if (pstmt != null) pstmt.close();
+        }
+    } catch (Exception e) {
+        out.write("error : " + e.getMessage().toString() + "\n");
+        if (conn != null) conn.close();
+        if (pstmt != null) pstmt.close();
+    }
+%>
